@@ -1,12 +1,11 @@
 set(SRC_FILES
-    hello.cpp
+    TicketSystem.cpp
 )
 
 set(INCLUDE_FILES
-    hello.hpp
+    TicketSystem.hpp
 )
 
 set(TEST_FILES
-    ut_sanity_check.cpp
-    ut_hello.cpp
+    ut_ticketsystem.cpp
 )
