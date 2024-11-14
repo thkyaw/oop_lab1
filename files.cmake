@@ -1,17 +1,26 @@
 set(SRC_FILES
-#    HotelRoom.cpp
-#    RoomList.cpp
-        Vector.cpp
+    Drink.cpp
+    Food.cpp
+    MainDish.cpp
+    OishiiPapa.cpp
+    Order.cpp
+    Package.cpp
+    SideDish.cpp
 )
 
 set(INCLUDE_FILES
-#    HotelRoom.hpp
-#    RoomList.hpp
-        Vector.hpp
+    Drink.hpp
+    Food.hpp
+    Ingredients.hpp
+    MainDish.hpp
+    OishiiPapa.hpp
+    Order.hpp
+    Package.hpp
+    SideDish.hpp
 )
 
 set(TEST_FILES
-#    ut_hotelroom.cpp
-#    ut_roomlist.cpp
-        ut_Vector.cpp
+    ut_Food.cpp
+    ut_Package.cpp
+    ut_Oishiipapa.cpp
 )
