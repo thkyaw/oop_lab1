@@ -15,7 +15,7 @@ private:
 public:
     OishiiPapa();
     void MakeDish();
-    void SendOrder(const Order& order);
+    void SendOrder(Order order);
     Package Pickup();
     int GetMoney();
     Order GetOrderInfo();
