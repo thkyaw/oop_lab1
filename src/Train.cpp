@@ -11,7 +11,7 @@ Train::Train(
     int         carriage,
     int         maxCarriage
 )
-    : Vehicle("null", "null", -1, type){
+    : Vehicle(country, model, durability, VehicleType::TRAIN){
 
     }
 
@@ -29,6 +29,10 @@ void Train::ConsumeDurability() {
         durability -= 5;
     }else{
         durability -= 10;
+    }
+
+    if (durability < 0){
+        std::runtime_error;
     }
     
 }

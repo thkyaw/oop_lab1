@@ -15,7 +15,7 @@ Bus::Bus(
     int         wheel,
     int         maxSpeed
 )
-    : Vehicle("null", "null", -1, type){}
+    : Vehicle(country, model, durability, VehicleType::BUS){}
 
 FuelType Bus::GetFuelType() {
     return FuelType::Gasoline;
@@ -31,6 +31,10 @@ void Bus::ConsumeDurability() {
         durability -= 1;
     }else{
         durability -= 10;
+    }
+
+    if (durability < 0){
+        std::runtime_error;
     }
 }
 

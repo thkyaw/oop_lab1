@@ -18,7 +18,7 @@ Boat::Boat(
     VehicleType type,
     int         maxSpeed
 )
-    : Vehicle("null", "null", -1, type) {
+    : Vehicle(country, model, durability, VehicleType::BOAT) {
 }
 
 FuelType Boat::GetFuelType() {
@@ -36,6 +36,11 @@ void Boat::ConsumeDurability() {
     }else{
         durability -= 10;
     }
+
+    if (durability < 0){
+        std::runtime_error;
+    }
+    
 }
 
 int Boat::GetSailing() const {

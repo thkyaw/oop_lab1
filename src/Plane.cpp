@@ -10,7 +10,7 @@ Plane::Plane(
     VehicleType type,
     int         currentAltitude,
     int         maxAltitude
-): Vehicle("null", "null", -1, type){
+): Vehicle(country, model, durability, VehicleType::PLANE){
 }
 
 FuelType Plane::GetFuelType() {
@@ -27,6 +27,10 @@ void Plane::ConsumeDurability() {
         durability -= 2;
     }else{
         durability -= 10;
+    }
+
+    if (durability < 0){
+        std::runtime_error;
     }
 }
 
