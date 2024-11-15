@@ -13,7 +13,7 @@ class Drink final : public Food {
 private:
     int ml;
 public:
-    Drink(Production id);
+    Drink(Production id);       // 建構子
     void MakeFood() override;
     void MakeLarger();
     int GetMl();

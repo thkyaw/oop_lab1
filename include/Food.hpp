@@ -11,15 +11,15 @@
 
 class Food {
 protected:
-    Production id;
+    Production id;          
     std::vector<Ingredients> ingredient;
     int money;
 public:
-    Food(Production id);
-    Production getId() const;
-    std::vector<Ingredients> GetIngredient();
+    Food(Production id);                // 建構子   
+    Production getId() const;           // Getter
+    std::vector<Ingredients> GetIngredient();  // Getter
     virtual void MakeFood() = 0;
-    int GetMoney();
+    int GetMoney();                     // Getter
 };
 
 #endif // OOP_FOOD_HPP

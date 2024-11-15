@@ -10,7 +10,7 @@ private:
     std::vector<Ingredients> addtional;
     std::vector<bool> larger;
 public:
-    Order(std::vector<Production> product, std::vector<Ingredients> addtional ,std::vector<bool> larger);
+    Order(std::vector<Production> product, std::vector<Ingredients> addtional ,std::vector<bool> larger);    // 建構子
     std::vector<Production> GetProductInfo();
     std::vector<Ingredients> GetAddtionalInfo();
     std::vector<bool> GetLargerInfo();
