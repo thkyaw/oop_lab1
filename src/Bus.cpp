@@ -34,7 +34,7 @@ void Bus::ConsumeDurability() {
     }
 
     if (durability < 0){
-        std::runtime_error;
+        throw std::runtime_error("error");
     }
 }
 
