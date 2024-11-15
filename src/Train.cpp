@@ -12,7 +12,7 @@ Train::Train(
     int         maxCarriage
 )
     : Vehicle("null", "null", -1, type){
-        
+
     }
 
 FuelType Train::GetFuelType() {
@@ -25,14 +25,25 @@ VehicleType Train::GetVehicleType() {
 void Train::ConsumeDurability() {}
 
 int Train::GetCarriage() const {
-    return 0;
+    return carriage;
 }
 int Train::GetMaxCarriage() const {
-    return 0;
+    return maxCarriage;
 }
 
 void Train::SetMaxCarriage(int value) {
+    this->maxCarriage = value;
+    if (maxCarriage > 12)
+    {
+        throw std::invalid_argument("exceed carriage");
+    }
+    
 }
 
 void Train::SetCarriage(int value) {
+    this->carriage = value;
+    if (carriage > maxCarriage)
+    {
+        throw std::invalid_argument("exceed carriage");
+    }
 }

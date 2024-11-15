@@ -7,6 +7,7 @@
 
 #include <exception>
 #include <string>
+#include <stdexcept>
 
 typedef std::string str;
 enum class VehicleType {
