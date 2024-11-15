@@ -1,247 +1,227 @@
-# Homework 03
-
-> 這份作業由物件導向程式設計助教群所製。
-> 如有問題，歡迎使用以下方式聯繫助教：
-
->> Email: t111590004@ntut.org.tw
->> MS Teams: 張意昌
-⚠️ Due: 2024/11/13 11:59 p.m.  ⚠️
-
-
+# Midterm
 
 ## 說明
 
-### 目標
+> 這次你是一個運通交通大亨，需要規劃、建造、管理你手底下的所有載具。
 
-- [ ] 學會繼承以及其使用。
-- [ ] 學會純虛擬函數。
-- [ ] 學會 `std::share_ptr` 的應用。
+這次任務包含設計、製造和使用。在設計的部分，有一個基礎類別 `Vehicle` ，裡面包含這載具的各式各樣成員資訊，也有虛擬函數。`Bus`, `Plane`, `Boat`, `Train` 是繼承於 `Vehicle` 的子類別。他們四個當中也會有自己的私有成員以及需要重寫函數（override）。
 
-### 檔案架構
+在製造的部分，會有分散在美國與日本的兩個工廠，當中製造著設計完成的四個載具。雖然製造他們的函數名稱一樣，但你需要想辦法去限制他。
 
-請確認提交是否符合以下的檔案架構，否則無法進行評分。
+在使用的部分你需要製作維修站、加電油站以及售票站，你會需要注意是否載具的座位容量已達上限，或者加電油站的整體油量或者電量是否歸零。
 
-```txt=
-./
-├── CMakeLists.txt
-├── LICENSE
-├── README.md
-├── .gitignore
-├── .clang-format
-├── files.cmake
-├── include
-│   └── Drink.hpp
-│   └── Food.hpp
-│   └── Ingredients.hpp
-│   └── MainDish.hpp
-│   └── OishiiPapa.hpp
-│   └── Order.hpp
-│   └── Package.hpp
-│   └── SideDish.hpp
-├── scripts
-│   ├── CodeCoverage.cmake
-│   └── coverage.sh
-├── src
-│   └── Drink.cpp
-│   └── Food.cpp
-│   └── MainDish.cpp
-│   └── OishiiPapa.cpp
-│   └── Order.cpp
-│   └── Package.cpp
-│   └── SideDish.cpp
-└── test
-    └── ut_Food.cpp
-    └── ut_Oishiipapa.cpp
-    └── ut_Package.cpp
+### 任務零、前置說明
+
+- 準則一：在實作建構子或者方法/函式的時候，當整數型別參數傳入時，必須檢查小於 `0` 則 `std::invalid_argument`。
+
+- 表格一：所有載具所消耗的燃油類型。
+
+  | 載具種類（`VehicleType`）- `Enum class` | 燃油類型（`FuelType`）- `Enum class` |
+  | --------------------------------------- | ------------------------------------ |
+  | `Train`                                 | `Electricity`                        |
+  | `Plane`                                 | `Gasoline `                          |
+  | `Bus`                                   | `Gasoline `                          |
+  | `Boat`                                  | `Gasoline `                          |
+
+- 表格二：所有載具生產國家的耐久值消耗程度。
+
+  | 載具生產國家 - `String` | 載具種類 - `Enum class` | 消耗值 - `int` |
+  | ----------------------- | :---------------------- | -------------- |
+  | USA                     | Train                   | -4             |
+  | USA                     | Plane                   | -30            |
+  | USA                     | Bus                     | -5             |
+  | USA                     | Boat                    | -4             |
+  | Japan                   | Train                   | -5             |
+  | Japan                   | Plane                   | -2             |
+  | Japan                   | Bus                     | -1             |
+  | Japan                   | Boat                    | -5             |
+  | Other                   | Train                   | -10            |
+  | Other                   | Plain                   | -10            |
+  | Other                   | Bus                     | -10            |
+  | Other                   | Boat                    | -10            |
+
+- 表格三：所有載具在生產國家的對應標示。以下是建構子的所有按照順序的參數。
+
+  | 載具生產國家 | 載具種類 | 國家 - `String` | 工廠 - `String` | 當前耐久值 - `int` | 載具種類 - `Enum class` | 參數五 - `int` | 參數六 - `int` |
+  | ------------ | :------- | --------------- | --------------- | :----------------- | :---------------------: | -------------- | -------------- |
+  | Japan        | Train    | `Japan`         | `Toyota`        | `0`                |  `VehicleType::TRAIN`   | `6`            | `12`           |
+  | Japan        | Plane    | `Japan`         | `Mitsubishi`    | `0`                |  `VehicleType::PLANE`   | `0`            | `12000`        |
+  | Japan        | Bus      | `Japan`         | `Yamaha`        | `0`                |   `VehicleType::BUS`    | `12`           | `80`           |
+  | Japan        | Boat     | `Japan`         | `Shinkansen`    | `0`                |   `VehicleType::BOAT`   | `30`           | 無             |
+  | USA          | Train    | `USA`           | `Amtrak`        | `0`                |  `VehicleType::TRAIN`   | `6`            | `12`           |
+  | USA          | Plane    | `USA`           | `Boeing`        | `0`                |  `VehicleType::PLANE`   | `0`            | `12000`        |
+  | USA          | Bus      | `USA`           | `Ford`          | `0`                |   `VehicleType::BUS`    | `12`           | `80`           |
+  | USA          | Boat     | `USA`           | `Bayliner`      | `0`                |   `VehicleType::BOAT`   | `30`           | 無             |
+
+  - 說明：參數五、六，**均由每種載具**的私有屬性而定。如火車的參數五表示火車車廂的節數，飛機的參數五表示飛機當前的高度。以此類推......。
+
+- 表格四：票據種類
+
+  | 參數一     | 參數二   | 參數三   | 參數四   | 參數五   | 參數六   |
+  | ---------- | -------- | -------- | -------- | -------- | -------- |
+  | 購買者名稱 | 單位價錢 | 票據編號 | 起始站點 | 終始站點 | 載具資訊 |
+
+  - 價錢：`單位價錢 * 距離 * 優惠價（兒童 0.6 / 成人 1.0 / 老人 0.8 ）`
+  - 票據編號：從 `0` 開始計算。
+
+- 表格五：單位價錢
+
+  | 載具種類 | 單位價錢 |
+  | -------- | :------- |
+  | Train    | 80       |
+  | Plane    | 120      |
+  | Bus      | 100      |
+  | Boat     | 50       |
+
+- 表格六：載具所能容納的空間
+
+  | 載具種類 | 載具空間 |
+  | :------- | :------- |
+  | Train    | 1000     |
+  | Plane    | 200      |
+  | Bus      | 20       |
+  | Boat     | 50       |
+
+### 任務一、規劃所有載具 - 50%
+
+- 類別： `Vehicle`：
+
+  - 建構子：`Vehicle(std::string country, std::string model, int durability, VehicleType type)`。初始化成員，並檢查整數類型的成員範圍若小於零，請丟出 `std::invalid_argument`。
+  - 方法：`bool IsDurabilityZero()`。是否載具耐久值為零
+  - 方法：`void AddDurability(int value)`。增加載具的耐久值，且耐久值的最大值為 `100`，如果超過就 `std::invalid_argument`。
+  - 方法：`int GetDurability()`。取得載具耐久值的 Getter。
+  - 方法： `void AddEnergy(int value)`。增加載具的能量值，且能量值的最大值為 `1000`，如果超過就 `std::invalid_argument`。
+  - 方法：`int GetEnergy()`。取得載具的能量值。
+  - 方法：`std::string GetCountry()`。取得載具的製造國家。
+  - 方法：`std::string GetModel()`。取得載具的生產工廠。
+  - 方法：`virtual FuelType GetFuelType() = 0;`。顯示燃油種類，具體查看表格一。
+  - 方法：`virtual void ConsumeDurability() = 0`。消耗耐久值，具體預設減少的值請查看表格二。
+
+- 建構類別： `Train`，繼承 `Vehicle` 類別。
+  - 建構子： `Train(std::string country, std::string model, int durability, VehicleType type, int carriage, int maxCarriage)`。初始化成員，並檢查整數類型的成員範圍若小於零，請丟出 `invalid_argument`。如果當前節數超過最大的車廂節數，就 `std::invalid_argument`。
+  - 方法： `void SetCarriage(int value)`。設定當前火車車廂的節數，如果當前節數超過最大的車廂節數，就 `std::invalid_argument`。
+  - 方法： `int GetCarriage()`。取得當前火車車廂的節數。
+  - 方法： `void SetMaxCarriage(int value)`。設定火車最大車廂的節數，最大不超過 `12`，如果超過就 `std::invalid_argument`。
+  - 方法： `int GetMaxCarriage()`。取得當前火車最大車廂的節數。
+  - 方法： `virtual FuelType GetFuelType() override`。請查看表格一，回傳相應的燃油類型。
+  - 方法： `virtual void ConsumeDurability() override`。請查看表格二，減少載具的耐久值。如果耐久值小於 `0` 的時候，則 `std::runtime_error`。
+
+<!--     - 成員： `int currentAltitude`。紀錄當前火車車廂的節數。
+    - 成員： `int maxAltitude`。紀錄最大火車車廂能拉的節數。 -->
+
+- 建構子類別： `Plane`，繼承 `Vehicle` 類別。
+
+  - 建構子： `Plane(std::string country, std::string model, int durability, VehicleType type, int currentAltitude, int maxAltitude)`。初始化成員，並檢查整數類型的成員範圍若小於零，請丟出 `invalid_argument`。如果當前飛機的高度超過最大值，就 `std::invalid_argument`。飛機的最大飛行高度，如果不超過 `40000`，如果超過就 `std::invalid_argument`。
+  - 方法： `void SetCurrentAltitude(int value)`。設定當前飛機的飛行高度，如果當前飛機的高度超過最大值，就 `std::invalid_argument`。
+  - 方法： `void SetMaxAltitude(int value)`。設定飛機的最大飛行高度，如果不超過 `40000`，如果超過就 `std::invalid_argument`。
+  - 方法： `int GetCurrentAltitude()`。取得當前飛機的飛行高度。
+  - 方法： `int GetMaxAltitude()`。取得當前飛機的最大飛行高度。
+  - 方法： `virtual FuelType GetFuelType() override`。請查看表格一，回傳相應的燃油類型。
+  - 方法： `virtual void ConsumeDurability() override`。請查看表格二，減少載具的耐久值。如果耐久值小於 `0` 的時候，則 `std::runtime_error`。
+
+- 建構子類別： `Bus`，繼承 `Vehicle` 類別。
+  - 建構子： `Bus(std::string country, std::string model, int durability, VehicleType type, int wheel, int maxSpeed)`。初始化成員，並檢查整數類型的成員範圍若小於零，請丟出 `std::invalid_argument`。巴士的車輪數最大不能超過 `12` 顆，超過範圍就 `std::invalid_argument`。巴士最大速度，其不能超過 `80` 公里，超過範圍就 `std::invalid_argument`。
+  - 方法： `void SetWheel(int value)`。製作巴士的車輪數，最大不能超過 `12` 顆，超過範圍就 `std::invalid_argument`。
+  - 方法： `void SetMaxSpeed(int value)`。設定巴士最大速度，其不能超過 `80` 公里，超過範圍就 `std::invalid_argument`。
+  - 方法： `int GetWheel()`。去得巴士的車輪數。
+  - 方法： `int GetMaxSpeed()`。取得巴士最大的速度。
+  - 方法： `virtual FuelType GetFuelType() override`。請查看表格一，回傳相應的燃油類型。
+  - 方法： `virtual void ConsumeDurability() override`。請查看表格二，減少載具的耐久值。如果耐久值小於 `0` 的時候，則 `std::runtime_error`。
+- 建構子類別： `Boat`，繼承 `Vehicle` 類別。
+  - 說明：航行滑動狀態的初始值為 `false`。
+    <!-- - 成員： `int isSailing`。紀錄汽車的車輪數。
+    - 成員： `int maxSpeed`。紀錄汽車的車輪數。 -->
+  - 建構子： `Boat(std::string country, std::string model, int durability, VehicleType type, int maxSpeed)`。初始化成員，並檢查整數類型的成員範圍若小於零，請丟出 `std::invalid_argument`。船的最大速度，不能超過 `30` 節，超過範圍就 `std::invalid_argument`。
+  - 方法： `void SetSailing(bool status)`。設定是否船隻正在滑動。
+  - 方法： `void SetMaxSpeed(int value)`。設定船的最大速度，不能超過 `30` 節，超過範圍就 `std::invalid_argument`。
+  - 方法： `bool GetSailing()`。取得當前船隻的滑動狀態。
+  - 方法： `int GetMaxSpeed()`。取得當前船隻的最大速度。
+  - 方法： `virtual FuelType GetFuelType() override`。請查看表格一，回傳相應的燃油類型。
+  - 方法： `virtual void ConsumeDurability() override`。請查看表格二，減少載具的耐久值。如果耐久值小於 `0` 的時候，則 `std::runtime_error`。
+
+### 任務二、生產載具 - 20%
+
+- 在日本生產： `FactoryJapan.hpp`
+  - 命名空間: `Factory`
+    - 命名空間： `Japan`
+      - 函數： `std::shared_ptr<Bus> ProduceBus()`。根據表格三，回傳對應的物件。
+      - 函數： `std::shared_ptr<Plane> ProducePlane()`。根據表格三，回傳對應的物件。
+      - 函數： `std::shared_ptr<Boat> ProduceBoat()`。根據表格三，回傳對應的物件。
+      - 函數： `std::shared_ptr<Train> ProduceTrain()`。根據表格三，回傳對應的物件。
+- 在美國生產： `FactoryUSA.hpp`
+  - 命名空間: `Factory`
+    - 命名空間： `USA`
+      - 函數： `std::shared_ptr<Bus> ProduceBus()`。根據表格三，回傳對應的物件。
+      - 函數： `std::shared_ptr<Plane> ProducePlane()`。根據表格三，回傳對應的物件。
+      - 函數： `std::shared_ptr<Boat> ProduceBoat()`。根據表格三，回傳對應的物件。
+      - 函數： `std::shared_ptr<Train> ProduceTrain()`。根據表格三，回傳對應的物件。
+
+> Hint：shared_ptr 和 make_shared 的方式長的像這樣。
+
+```cpp
+std::shared_ptr<Bus> bus = std::make_shared<Bus>(...);
 ```
 
+### 任務三、載具子系統 - 30%
 
+在實作建構子或者方法/函式的時候，當有整數型別參數傳入時，必須檢查是否小於 `0`。否則 `std::invalid_argument`。
 
-## 題目評分
+- 售票管理系統： `TicketSystem.hpp`
 
-- ［80%］完成第一部分。
-  - `MAINDISH_TEST` 20%
-  - `SIDEDISH_TEST` 20%
-  - `DRINK_TEST` 10%
-  - `PACKAGE_TEST` 30%
-- ［20%］完成第二部分。
-  - `OISHIIPAPA_TEST` 20%
-- 依照完成部分比例給分，取上傳紀錄中最高者記錄之。
-## 注意事項
+  - 建構子： `TicketSystem(
+        const std::shared_ptr<Boat>  boat,
+        const std::shared_ptr<Bus>   bus,
+        const std::shared_ptr<Plane> plane,
+        const std::shared_ptr<Train> train
+)`。初始化成員，傳入四個載具的物件資訊。
+  - 方法：`Ticket BuyTicket(
+std::string name,
+Station     start,
+Station     end,
+VehicleType type,
+Discount    discount,
+int        distance)`。作為訂票系統。不過在訂票之前，你需要自行製作並維護載具座位表的容量，並檢查載具的座位量是否已經達到上限，不然就 `std::invalid_argument`，然後再根據載具類型，生成不同的票據資訊，增加當前載具的座位佔用量。更多資訊請查看表格四、五、六。
+  - 方法： `void Depart(VehicleType type)`。作為指定載具發車的功能。在發車之前會先檢查載具是否損壞，再來載具是否燃油不足。如果上述情況就 `std::runtime_error`。最後都沒有上述情況時，他會重設指定載具的座位空間，並對載具增加損耗。當中你會需要使用到載具子系統內的四個物件資訊，並且由於你會需要使用到四個子類別轉型成父類別的功能，因此以下是範例。
 
-- 你不應該上傳 `/bin` 資料夾至專案上。
-  - 你的功課不應該出現 Memory Leak，否則將會扣作業總分 10 分。
-  - 你不應該上傳 `/bin` 資料夾至專案庫，編譯結果不應該上傳至專案庫上，若在助教確認功課評分時 `/bin` 資料夾存在在專案庫中，扣除作業總分 5 分。
+    ```cpp
+    // 父類別載具
+    void Depart(VehicleType type) {
+    // ...
+    std::shared_ptr<Vehicle> vehicle;
+    switch (type) {
+        case VehicleType::BOAT: vehicle = Transform::UpCasting<Boat>(_boat); break;
+        case VehicleType::BUS:  vehicle = Transform::UpCasting<Bus>(_car); break;
+        case VehicleType::TRAIN: vehicle = Transform::UpCasting<Train>(_train); break;
+        case VehicleType::PLANE: vehicle = Transform::UpCasting<Plane>(_plane); break;
+    }
+    // ...
+    }
 
-## 敘述
+    ```
 
-> 嗨，歡迎參加 OOP 課程。
->
-> 想必你已經完成了 Lecture 03 的課程，並瞭解有關於繼承的觀念。
-> （若還不了解的話，可以查看 Lecture 03 的簡報）
->
-> 在這個任務中，你會了解如何使用課堂上所描述的繼承觀念。
+    - `Transform::UpCasting<型別>` 存在於 `include/TransformLayer.hpp` 當中。
 
-請嘗試完成任務，並在 Jenkins 上拿到綠色的 Correct 勾勾。
+- 維修載具函數： `MaintenanceSystem.hpp`
+  - 說明： `void RepairVehicle(std::shared_ptr<Vehicle> vehicle)`。作用為維修載具，將載具的耐久值重新提高到最大值。
+- 加電油站系統： `EnergyStation.hpp`
+  - 說明：充電量和燃油值的初始值為 `0`。站體內，電量最大不得超過 `10000`，燃油量最大不得超過 `3000`。
+  - 方法： `void AddPower(int value)`。增加站內的充電量，且站體內充電量最大不得超過 `10000`。
+  - 方法： `void AddFuel(int value)`。增加站內的燃料量，且站體內燃油量最大不得超過 `3000`。
+  - 方法： `int GetPower()`。取得站內的充電量。
+  - 方法： `int GetFuel()`。取得站類的燃料量。
+  - 方法： `void ChargeVehicle(std::shared_ptr<Vehicle> vehicle)`。 作用為對載具做充電的行為。當載具被傳入的時候，他會偵測載具的充電類型為燃油或者電能，並做出相對應的充電方式。但在載具充電完成之後，隨之站體內的燃油或者電量也會減少相對應的值。
 
-## 題目敘述
+---
 
-> 在這份任務中，我們嘗試設計出速食店的餐點。
+## 期中迷因
 
-`Original Oishii Papa` 是一間在世界各地有許多分店的美味速食店，`kesshoban` 想要在北科的藍光園地內開設一間分店，現在請你幫他完成一個簡單的管理系統。
+店員： "請問有載具嗎"
 
-由於 `Original Oishii Papa` 的核心精神是以簡單、美味為主，所以店內只有簡單的漢堡與美食組合，以下是他的餐點：
+客人：![b243d8912a436b98709c34d8f9ee223b](https://hackmd.io/_uploads/HJqRv4mfkl.jpg)
 
+<!-- # Target 2
 
-| 品名 |英文品名| 食材 | 價格 |
-| -------- |-----| -------- | -------- |
-| 豬肉堡     |PorkBurger| 一份豬排、一份生菜、一份漢堡麵包、一份起司     | 59     |
-| 牛肉堡     |BeefBurger| 一份牛排、一份生菜、一份漢堡麵包、一份起司     | 69     |
-| 魚排堡     |FishBurger| 一份魚排、一份生菜、一份漢堡麵包、一份起司     | 79     |
+你需要重新製作一個腳踏車的載具（bicycle），雖然他並不會融入到載具子系統裡面，但是我們會測試一些載具所擁有的通用屬性。例如：載具的生產國家（country），載具的生產工廠（model）以及改變載具的種類（VehicleType）。
 
-* 以上主餐 `maindish` 會存在 `Ingredients.hpp` 的 `enum class Production` 裡。
-
-當然，主餐也可以增加一些不同的配料，以下是可以增加的配料
-
-| 品名 |英文品名| 價格 |
-| -------- |-----| -------- |
-| 豬肉     |PorkSteak| 20     |
-| 牛肉     |BeefSteak| 20     |
-| 魚排     |FishSteak| 20     |
-| 生菜     |Lattuce  | 10     |
-| 起司     |Cheese   | 10     |
-
-* 以上配料會存在 `Ingredients.hpp` 的 `enum class Ingredients` 裡，請參考食材名稱區。
-
-
-| 品名 |英文品名| 食材 | 備註 |
-| -------- |-----| -------- | -------- |
-| 薯條     |Frenchfries| 一份薯條     | 小份44 <br> 大份59     |
-| 雞塊     |Nugget| 一份雞塊     | 小份44 <br> 大份59     |
-| 沙拉     |Salad| 一份沙拉     |  59    |
-
-* 以上附餐 `sidedish` 會存在 `Ingredients.hpp` 的 `enum class Production` 裡。
-
-
-| 品名 |英文品名| 食材 | 備註 |
-| -------- |-----| -------- | -------- |
-| 可樂     |Cola| 一份可樂     |  中杯28 <br> 大杯38    |
-| 雪碧     |Spirit|一份雪碧     | 中杯28 <br> 大杯38     |
-| 焦糖奶茶   |CaramelMilktea|一份奶茶、一份焦糖   | 中杯44     |
-| 咖啡拿鐵   |Latte |一份咖啡、一份牛奶   | 中杯45 <br> 大杯55    |
-
-* 中杯的 `ml` 是 `550` ， 大杯的 `ml` 是 `750` 。
-* 以上飲料 `drink` 會存在 `Ingredients.hpp` 的 `enum class Production` 裡。
-
-以上是整間速食店的餐點，接下來會給予相對應的食材。
-
-
-| 食材中文 | 食材英文 |
-| -------- | -------- |
-| 豬排     | PorkSteak     |
-| 牛排     | BeefSteak    |
-| 魚排     | FishSteak     |
-| 漢堡麵包  | BurgerBread     |
-| 生菜     | Lattuce     |
-| 起司     | Cheese     |
-| 薯條     | FranchFries     |
-| 雞塊     | ChickenNugget     |
-| 沙拉     | Salad     |
-| 可樂     | Cola     |
-| 雪碧     | Spirit     |
-| 奶茶  | Milktea     |
-| 焦糖  | Caramel     |
-| 咖啡  | Coffee    |
-| 牛奶  | Milk |
-
-* 以上食材會存在 `Ingredients.hpp` 的 `enum class Ingredients` 裡。
-
-* 在 `Ingreditents.hpp` 內，所有的東西都會用英文呈現，例如：豬排堡是 `Production::PorkBurger` 。
-
-### 任務一、在基礎類別中完成getter與setter
-
-- 在本次任務中，有一個基礎類別，也就是 `Food.hpp`。
-- 請於 `Food(Production id)` 內完成建構子。
-- 請於 `void getid()` 這個 `function` 內，回傳 `Production id` 這個物件。
-- 請於 `std::vector<Ingredients> GetIngredient()` 這個 `function` 內，回傳 `std::vector<Ingredients> ingredient` 這個物件。
-- 請設置 `void MakeFood()` 為一個純虛擬函數。
-- 請於 `int GetMoney()` 內 ，回傳 `int money` 這個物件。
-
-### 任務二、在衍伸類別中完成物件
-
-- 接下來會有三個 `class`，分別為 `maindish.hpp` 、 `sidedish.hpp` 、 `drink.hpp` ，這三個物件皆為 `food.hpp` 的衍伸物件，請根據對應的任務完成相對應的內容。
-
-- 共通部分
-  - 對於 `money` 這個物件，你應該要在 `void MakeFood()` 內進行修改。
-  - 對於三個 `maindish` 、 `sidedish` 、 `drink` ， 你應該完成相對應的建構子。 
-  - 你應該在合適的地方呼叫 `void MakeFood()` 。
-
-
-- `maindish.hpp`
-  - 對於 `void AddIngredients(std::vector<Ingredients> addtional)` 加入 `std::vector<Ingredients> addtional` ，並且重新計算價格。
-    - 若 `addtional` 內有任一一項食材未出現在 `額外配料Addtional` 的表格內，請拋出 `std::invalid_argument` 。
-- `sidedish.hpp`
-  - 除了 `沙拉` 以外的物件，如果 `void MakeLarger()` 被呼叫，你就要將 `SideDishType type` 設定成 `SideDishType::BIG` ，並且重新計算價格。
-  - 對於 `SideDishType GetType()` ，你應該回傳 `SideDishType type` 。
-- `drink.hpp`
-  - 除了 `焦糖奶茶` 以外的物件，如果 `void makelarger()` 被呼叫，你要將 `ml` 設定成 `750` ，並且重新計算價格。
-  - 根據 `int GetMl()` ，你應該要回傳 `ml` 。
-
-- 有以下一個部分請你要注意
-  - 在設計 `void MakeFood()` 時，請依照表格給的順序做填充，例如：豬排堡，那麼順序就是 `豬肉排、生菜、漢堡麵包、起司` 。
-
-### 任務三、完成包裝的物件
-
-- 接下來有一個叫做 `Package.hpp` 的檔案，是製作一份完整的餐點。
-- 對於 `void SetMainDish(MainDish maindish)` 你應該要將 `maindish` 設置在 `std::shared_ptr<MainDish> maindish` 內。
-- 對於 `void SetSideDish(SideDish sidedish)` 你應該要將 `sidedish` 設置在 `std::shared_ptr<SideDish> sidedish` 內。
-- 對於 `void SetDrink(Drink drink)` 你應該要將 `drink` 設置在 `std::shared_ptr<Drink> drink` 內。
-- 對於 `void CountMoney()` 你應該要計算當前這份 `Package` 內的餐點總價是多少後設定在 `money` 裡面，計算規則可以參考表格，並且當 `maindish` 、 `sidedish` 及 `drink` 都有東西時，請將 `money` 減少 `15`。
-
-
-## 題目敘述 (Part 2)
-
-接下來這個部分將會實作一個簡易的速食店系統，請根據對應的任務完成相對應的功能。
-
-速食店的 `class` 為 `OishiiPapa.hpp` 。
-
-### 任務一、觀察訂單物件
-
-- 接下來請觀察 `Order.hpp` 這個物件，將會告訴你訂單的應用。
-  - `std::vector<Production> product` 內存放該筆訂單所需求的產品，我們保證順序一定是 `{主餐,附餐,飲料}` 。
-    - Ex: `std::vector<Production> product = {PorkBurger,_NULL,Cola}` ， 代表只需要 `豬排堡` 以及 `可樂` 。
-  - `std::vector<Ingredients> addtional` 內代表 `主餐` 所需要的加料。
-  - `std::vector<bool> larger` 代表 `附餐` 及 `飲料` 是否需要加大，我們保證順序一定是 `{附餐,飲料}` 。
-    - Ex: `std::vector<bool> larger = {false,true}` ，代表附餐不用加大但飲料一定要。
-    - 保證沒有出現的餐點的那欄一定是 `false` 。
-  - 根據 `std::vector<Production> GetProductInfo()` ，你應該回傳 `std::vector<Production> product` 。
-  - 根據 `std::vector<Ingredients> GetAddtionalInfo()` ， 你應該回傳 `std::vector<Ingredients> addtional` 。
-  - 根據 `std::vector<bool> GetLargerInfo` ，你應該回傳 `std::vector<bool> larger` 。
-### 任務二、根據接收到的訂單製作物件
-- 對於 `void SendOrder(Order order)` ，你應該將 `order` 傳入 `std::queue<Order> pipeline` 內。
-- 對於 `void MakeDish()` ，請根據物件 `std::queue<Order> pipeline` 內最上方的 `Order` 回傳，進行相對應的 `Package` 製作，並且將製作好的物件放入 `std::queue<Package> chest` 內。
-  - 若當前的 `chest` 大小至少 `15` ，則不要製作餐點。
-  - 若當前的 `std::queue<Order> pipeline` 為空，則拋出 `std::out_of_range()` 。
-### 任務三、進行餐點管理
-- 對於 `Package Pickup()` 這個function，請觀察 `std::queue<Package> chest` 這個物件，當 function 被呼叫時，你應該將最上面的 `Package` 回傳，並且對 `Oishiipapa` 的 `money` 增加最上面的 `Package` 的 `money`，如果 `chest` 大小小於 `15` 且 `std::queue<Order> pipeline` 不為空，將 `std::queue<Order> pipeline` 內最上方的 `Order` 丟出來並製作餐點。
-  - 若當前的 `std::queue<Package> chest` 為空，則拋出 `std::out_of_range()` 。
-- 對於 `int GetMoney()` ，請回傳 `money` 。
-- 對於 `Order GetOrderInfo()` ，請回傳 `std::queue<Order> pipeline` 最上層的 `Order` 。
-### 任務提示
-- 提示：你應該先取的 `chest` 最上方的 `Package` ，之後再判斷是否要製作新的餐點，然後回傳 `Package` 。
-- `std::queue<Package> chest` 以及 `std::queue<Order> pipeline` 為 `queue` 這個資料結構，你應該去了解這個資料結構的用途，你可以參考[這篇](https://hackmd.io/@Ben1102/S1zcfIqnu)的介紹，用法會放在任務附註。
-
-## 任務附註
-
-- 你只需要實作任務所描述的function。
-- 關於 `std::invalid_argument` ，你可以參考[這篇](https://en.cppreference.com/w/cpp/error/invalid_argument)。
-- `std::invalid_argument`內可以寫任意東西。
-- 關於 `std::out_of_range` ，你可以參考[這篇](https://en.cppreference.com/w/cpp/error/out_of_range)。
-- `std::out_of_range`內可以寫任意東西。
-- 關於 `std::queue` ，你可以參考[這篇](https://en.cppreference.com/w/cpp/container/queue)。
-- 關於 `std::shared_ptr` ，你可以參考[這篇](https://en.cppreference.com/w/cpp/memory/shared_ptr)。
-
-## Homework's meme
-
-
-![meme](https://hackmd.io/_uploads/S1UnbyLbkg.png)
+- 載具種類（VehicleType）
+    在先前 Target 1. 裡面，我們定義了 VehicleType， -->

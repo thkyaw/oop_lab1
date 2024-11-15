@@ -16,9 +16,9 @@ if(FETCH_GOOGLETEST)
     # reference: https://google.github.io/googletest/quickstart-cmake.html
     include(FetchContent)
     FetchContent_Declare(
-        googletest
-        GIT_REPOSITORY https://github.com/google/googletest.git
-        GIT_TAG release-1.12.1
+            googletest
+            GIT_REPOSITORY https://github.com/google/googletest.git
+            GIT_TAG release-1.12.1
     )
     # For Windows: Prevent overriding the parent project's compiler/linker settings
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -41,7 +41,7 @@ list(TRANSFORM TEST_FILES PREPEND ${TEST_DIR}/)
 
 find_program(MEMORYCHECK_COMMAND valgrind)
 set(MEMORYCHECK_COMMAND_OPTIONS
-    "--error-exitcode=1 --track-origins=yes --leak-check=full"
+        "--error-exitcode=1 --track-origins=yes --leak-check=full"
 )
 include(CTest)
 
@@ -54,47 +54,47 @@ if(COVERAGE)
     include(scripts/CodeCoverage.cmake)
     set(CODE_COVERAGE_VERBOSE ON)
     set(COVERAGE_EXCLUDE
-        ${CMAKE_BINARY_DIR}/_deps/*
-        ${PROJECT_SOURCE_DIR}/test/*
+            ${CMAKE_BINARY_DIR}/_deps/*
+            ${PROJECT_SOURCE_DIR}/test/*
     )
 
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(GCOVR_ADDITIONAL_ARGS
-            --gcov-executable "llvm-cov gcov"
+                --gcov-executable "llvm-cov gcov"
         )
     endif()
 
     append_coverage_compiler_flags()
     setup_target_for_coverage_gcovr_html(
-        NAME ut_all_coverage
-        DEPENDENCIES ut_all
-        EXCLUDE ${COVERAGE_EXCLUDE}
+            NAME ut_all_coverage
+            DEPENDENCIES ut_all
+            EXCLUDE ${COVERAGE_EXCLUDE}
     )
 endif()
 
 if(MSVC)
     set(TARGET_COMPILER_OPTIONS
-        /W4
+            /W4
     )
 else()
     set(TARGET_COMPILER_OPTIONS
-        -Wall -pedantic
+            -Wall -pedantic
     )
 endif()
 
 add_executable(ut_all
-    ${SRC_FILES}
-    ${INCLUDE_FILES}
-    ${TEST_FILES}
+        ${SRC_FILES}
+        ${INCLUDE_FILES}
+        ${TEST_FILES}
 )
 target_link_libraries(ut_all
-    GTest::gtest_main
+        GTest::gtest_main
 )
 target_include_directories(ut_all PRIVATE
-    ${INCLUDE_DIR}
+        ${INCLUDE_DIR}
 )
 target_compile_options(ut_all PRIVATE
-    ${TARGET_COMPILER_OPTIONS}
+        ${TARGET_COMPILER_OPTIONS}
 )
 include(GoogleTest)
 gtest_discover_tests(ut_all)

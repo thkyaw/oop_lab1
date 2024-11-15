@@ -1,26 +1,38 @@
 set(SRC_FILES
-    Drink.cpp
-    Food.cpp
-    MainDish.cpp
-    OishiiPapa.cpp
-    Order.cpp
-    Package.cpp
-    SideDish.cpp
+        FactoryJapan.cpp
+        FactoryUSA.cpp
+        Vehicle.cpp
+        Train.cpp
+        Plane.cpp
+        Boat.cpp
+        Bus.cpp
+        EnergyStation.cpp
+        MaintenanceSystem.cpp
+        TicketSystem.cpp
 )
 
 set(INCLUDE_FILES
-    Drink.hpp
-    Food.hpp
-    Ingredients.hpp
-    MainDish.hpp
-    OishiiPapa.hpp
-    Order.hpp
-    Package.hpp
-    SideDish.hpp
+        Factory/FactoryJapan.h
+        Factory/FactoryUSA.h
+        Object/Boat.h
+        Object/Bus.h
+        Object/Plane.h
+        Object/Train.h
+        Object/Vehicle.h
+        System/TicketSystem.hpp
+        System/EnergyStation.hpp
+        System/MaintenanceSystem.hpp
 )
 
 set(TEST_FILES
-    ut_Food.cpp
-    ut_Package.cpp
-    ut_Oishiipapa.cpp
+        ut_Vehicle.cpp
+        ut_Train.cpp
+        ut_Plane.cpp
+        ut_Bus.cpp
+        ut_Boat.cpp
+        ut_FactoryJapan.cpp
+        ut_FactoryUSA.cpp
+        ut_MaintenceSystem.cpp
+        ut_EnergyStation.cpp
+        ut_TicketSystem.cpp
 )
