@@ -14,24 +14,41 @@ Plane::Plane(
 }
 
 FuelType Plane::GetFuelType() {
-    return FuelType::Null;
+    return FuelType::Gasoline;
 }
 VehicleType Plane::GetVehicleType() {
-    return VehicleType::Null;
+    return VehicleType::PLANE;
 }
 
 void Plane::ConsumeDurability() {
+    if (country == "USA"){
+        durability -= 30;
+    }else if(country == "Japan"){
+        durability -= 2;
+    }else{
+        durability -= 10;
+    }
 }
 
 int Plane::GetMaxAltitude() const {
-    return -1;
+    return maxAltitude;
 }
 int Plane::GetCurrentAltitude() const {
-    return -1;
+    return currentAltitude;
 }
 
 void Plane::SetMaxAltitude(int value) {
+    this->maxAltitude = value;
+    if (maxAltitude > 4000)
+    {
+        throw std::invalid_argument("exceed maxAltitude");
+    }
 }
 
 void Plane::SetCurrentAltitude(int value) {
+    this->currentAltitude = value;
+    if (currentAltitude > maxAltitude)
+    {
+        throw std::invalid_argument("exceed altitude");
+    }
 }

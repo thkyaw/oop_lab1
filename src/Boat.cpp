@@ -22,23 +22,37 @@ Boat::Boat(
 }
 
 FuelType Boat::GetFuelType() {
-    return FuelType::Null;
+    return FuelType::Gasoline;
 }
 VehicleType Boat::GetVehicleType() {
-    return VehicleType::Null;
+    return VehicleType::BOAT;
 }
 
-void Boat::ConsumeDurability() {}
+void Boat::ConsumeDurability() {
+    if (country == "USA"){
+        durability -= 4;
+    }else if(country == "Japan"){
+        durability -= 5;
+    }else{
+        durability -= 10;
+    }
+}
 
 int Boat::GetSailing() const {
-    return -1;
+    return sailing;
 }
 int Boat::GetMaxSpeed() const {
-    return -1;
+    return maxSpeed;
 }
 
 void Boat::SetMaxSpeed(int value) {
+    this->maxSpeed = value;
+    if (maxSpeed > 30)
+    {
+        throw std::invalid_argument("exceed maxSpeed");
+    }
 }
 
 void Boat::SetSailing(bool status) {
+    this->sailing = status;
 }

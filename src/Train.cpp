@@ -16,13 +16,22 @@ Train::Train(
     }
 
 FuelType Train::GetFuelType() {
-    return FuelType::Null;
+    return FuelType::Electricity;
 }
 VehicleType Train::GetVehicleType() {
-    return VehicleType::Null;
+    return VehicleType::TRAIN;
 }
 
-void Train::ConsumeDurability() {}
+void Train::ConsumeDurability() {
+    if (country == "USA"){
+        durability -= 4;
+    }else if(country == "Japan"){
+        durability -= 5;
+    }else{
+        durability -= 10;
+    }
+    
+}
 
 int Train::GetCarriage() const {
     return carriage;
@@ -35,7 +44,7 @@ void Train::SetMaxCarriage(int value) {
     this->maxCarriage = value;
     if (maxCarriage > 12)
     {
-        throw std::invalid_argument("exceed carriage");
+        throw std::invalid_argument("exceed maxcarriage");
     }
     
 }
