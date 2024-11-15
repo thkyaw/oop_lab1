@@ -11,8 +11,8 @@
 
 class Plane final : public Vehicle {
 private:
-
-    /* member */
+    int currentAltitude = 0;
+    int maxAltitude = 0;
 public:
     Plane(
         std::string country,

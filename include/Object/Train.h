@@ -10,7 +10,8 @@
 
 class Train : public Vehicle {
 private:
-    /* member */
+    int carriage = 0;
+    int maxCarriage = 0;
 
 public:
     Train(

@@ -11,7 +11,9 @@ Train::Train(
     int         carriage,
     int         maxCarriage
 )
-    : Vehicle("null", "null", -1, type){}
+    : Vehicle("null", "null", -1, type){
+        
+    }
 
 FuelType Train::GetFuelType() {
     return FuelType::Null;
